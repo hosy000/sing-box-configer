@@ -60,7 +60,7 @@ def replace_data(server, server_name):
 
 # Define a function to save the modified json data to a file
 def save_to_file(data):
-    with open('sing-box_config.json', 'w') as file:
+    with open('/root/sing-box_config.json', 'w') as file:
         json.dump(data, file)
 
 # Define a function to handle the /replace command
