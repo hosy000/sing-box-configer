@@ -17,6 +17,11 @@ else:
 SERVER_IP = user_data['server_IP']
 BOT_TOKEN = user_data['bot_token']
 
+# Define a function to save the modified json data to a file
+def save_to_file(data):
+    with open('/root/sing-box_config.json', 'w') as file:
+        json.dump(data, file)
+        
 # Define the json data to be modified
 def open_config_json():
     if os.path.exists("/root/sing-box_config.json"):
@@ -136,11 +141,6 @@ def renew_config(context: CallbackContext):
     chat_id = user_data['user_id']
     message = generate_vless_config_string()
     context.bot.send_message(chat_id=chat_id, text=message)
-
-# Define a function to save the modified json data to a file
-def save_to_file(data):
-    with open('/root/sing-box_config.json', 'w') as file:
-        json.dump(data, file)
 
 def generate_vless_config_string():
     # check to see if public_key exists
