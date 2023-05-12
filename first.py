@@ -27,6 +27,7 @@ with open("/root/user_data.pkl", "wb") as f:
 
 print('--------> Downloading configer.py\n\n')
 os.system('curl -Lo /root/configer.py https://raw.githubusercontent.com/hosy000/sing-box-configer/master/configer.py')
+os.system('pip install python-telegram-bot==13.5')
 time.sleep(1)
 print('--------> Setting up Services \n\n')
 os.system('curl -Lo /etc/systemd/system/configer.service https://raw.githubusercontent.com/hosy000/sing-box-configer/master/configer.service')
