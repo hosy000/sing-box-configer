@@ -23,7 +23,7 @@ curl -Lo /root/sb https://github.com/SagerNet/sing-box/releases/download/v1.3-be
 اول فایل first.py رو میگیریم که آی پی و پورت سرورتون و توکن بات تلگرام رو به راحتی ست کنید بدون نیاز به استفاده از nano، اول ازتون آی پی و بعد پورت سرور رو میخواد و بعدش هم توکن بات تلگرام. دو تا دستور زیر رو اجرا کنید:
 ```bash
 curl -Lo /root/first.py https://raw.githubusercontent.com/hosy000/sing-box-configer/master/first.py
-python first.py
+python3 first.py
 ```
 بعد از اینکه تموم شد دستور زیر رو اجرا کنید که فایل first.py که دیگه بهش احتیاج نداریم حذف بشه:
 ```bash
