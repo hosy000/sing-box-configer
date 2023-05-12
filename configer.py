@@ -3,7 +3,7 @@ import subprocess
 import os
 import pickle
 import datetime
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 
 
 # Loading User Data from file
@@ -192,6 +192,10 @@ def start_handler(update, context):
         os.system('systemctl enable --now sing-box')
         context.bot.send_message(chat_id=chat_id, text=message)
 
+# Function to handle errors
+def error(bot, context):
+    print(f"bot {bot} caused error {context.error}")
+
 # Define the main function
 def main():
     # Create a telegram bot and add a command handler for /replace command
@@ -205,6 +209,7 @@ def main():
     updater.dispatcher.add_handler(CommandHandler('replace', replace_handler))
     updater.dispatcher.add_handler(CommandHandler('status', status_handler))
     updater.dispatcher.add_handler(CommandHandler('start', start_handler))
+    updater.dispatcher.add_error_handler(MessageHandler(Filters.all, error))
     updater.start_polling()
     updater.idle()
 
