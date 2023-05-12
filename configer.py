@@ -71,7 +71,11 @@ def open_config_json():
                             }
                         ]
                     }
-        json_data = renew_data('first')
+        save_to_file(json_data)
+        json_data = renew_data()
+        check = os.system('/root/sing-box check -c sing-box_config.json')
+        if check != 0 :
+            print('Error happened while creating first config')
     return json_data
 json_data = open_config_json()
 
@@ -83,7 +87,7 @@ def replace_data(server, server_name):
     return json_data
 
 # Define  a function to renew uuid, private_key and short_id automatically everyday and send the new config
-def renew_data(mode='default'):
+def renew_data():
     # Run shell commands to generate UUID, reality keypair, and short ID
     uuid = subprocess.run(["/root/sing-box", "generate", "uuid"], capture_output=True, text=True).stdout.strip()
     reality_keypair = subprocess.run(["/root/sing-box", "generate", "reality-keypair"], capture_output=True, text=True).stdout.strip().splitlines()
@@ -100,8 +104,10 @@ def renew_data(mode='default'):
         pickle.dump(public_key, f)
 
     # Stopping sing-box before editing config, not doing it for first config setup though!
-    if mode != 'first':
+    try:
         subprocess.run(["systemctl", "stop", "sing-box"])
+    except Exception as e:
+        print(f'Error happened stopping sing-box:\n{e}')
     
     # Load the JSON data
     json_data = open_config_json()
@@ -115,9 +121,11 @@ def renew_data(mode='default'):
     save_to_file(json_data)
 
     # Restarting sing-box
-    if mode != 'first':
+    try:
         subprocess.run(["systemctl", "restart", "sing-box"])
-
+    except Exception as e:
+        print(f'Error happened restarting sing-box:\n{e}')
+    
     return json_data
 
 def renew_config(context: CallbackContext):
@@ -137,7 +145,7 @@ def save_to_file(data):
 def generate_vless_config_string():
     # check to see if public_key exists
     if not os.path.exists("/root/public_key.pkl"):
-        renew_data('first')
+        renew_data()
     # Load the modified JSON data from the file
     json_data = open_config_json()
 
