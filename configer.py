@@ -21,7 +21,49 @@ BOT_TOKEN = user_data['bot_token']
 def save_to_file(data):
     with open('/root/sing-box_config.json', 'w') as file:
         json.dump(data, file)
-        
+
+# Define  a function to renew uuid, private_key and short_id automatically everyday and send the new config
+def renew_data():
+    # Run shell commands to generate UUID, reality keypair, and short ID
+    uuid = subprocess.run(["/root/sing-box", "generate", "uuid"], capture_output=True, text=True).stdout.strip()
+    reality_keypair = subprocess.run(["/root/sing-box", "generate", "reality-keypair"], capture_output=True, text=True).stdout.strip().splitlines()
+    private_key = reality_keypair[0].split(": ")[1]
+    public_key = reality_keypair[1].split(": ")[1]
+    short_id = subprocess.run(["/root/sing-box", "generate", "rand", "--hex", "8"], capture_output=True, text=True).stdout.strip()
+
+    with open("/root/sb-data.json", "w") as f:
+        dic = {"uuid":uuid, "public_key":public_key, "private_key":private_key, "short_id":short_id}
+        json.dump(dic,f)
+
+    # Save public key to a pickle file
+    with open("/root/public_key.pkl", "wb") as f:
+        pickle.dump(public_key, f)
+
+    # Stopping sing-box before editing config, not doing it for first config setup though!
+    try:
+        subprocess.run(["systemctl", "stop", "sing-box"])
+    except Exception as e:
+        print(f'Error happened stopping sing-box:\n{e}')
+    
+    # Load the JSON data
+    json_data = open_config_json()
+
+    # Modify the values in the JSON data
+    json_data["inbounds"][0]["users"][0]["uuid"] = uuid
+    json_data["inbounds"][0]["tls"]["reality"]["private_key"] = private_key
+    json_data["inbounds"][0]["tls"]["reality"]["short_id"] = [short_id]
+    
+    # Save the modified JSON data to config
+    save_to_file(json_data)
+
+    # Restarting sing-box
+    try:
+        subprocess.run(["systemctl", "restart", "sing-box"])
+    except Exception as e:
+        print(f'Error happened restarting sing-box:\n{e}')
+    
+    return json_data
+
 # Define the json data to be modified
 def open_config_json():
     if os.path.exists("/root/sing-box_config.json"):
@@ -90,49 +132,7 @@ def replace_data(server, server_name):
     json_data['inbounds'][0]['tls']['server_name'] = server_name
     json_data['inbounds'][0]['tls']['reality']['handshake']['server'] = server
     return json_data
-
-# Define  a function to renew uuid, private_key and short_id automatically everyday and send the new config
-def renew_data():
-    # Run shell commands to generate UUID, reality keypair, and short ID
-    uuid = subprocess.run(["/root/sing-box", "generate", "uuid"], capture_output=True, text=True).stdout.strip()
-    reality_keypair = subprocess.run(["/root/sing-box", "generate", "reality-keypair"], capture_output=True, text=True).stdout.strip().splitlines()
-    private_key = reality_keypair[0].split(": ")[1]
-    public_key = reality_keypair[1].split(": ")[1]
-    short_id = subprocess.run(["/root/sing-box", "generate", "rand", "--hex", "8"], capture_output=True, text=True).stdout.strip()
-
-    with open("/root/sb-data.json", "w") as f:
-        dic = {"uuid":uuid, "public_key":public_key, "private_key":private_key, "short_id":short_id}
-        json.dump(dic,f)
-
-    # Save public key to a pickle file
-    with open("/root/public_key.pkl", "wb") as f:
-        pickle.dump(public_key, f)
-
-    # Stopping sing-box before editing config, not doing it for first config setup though!
-    try:
-        subprocess.run(["systemctl", "stop", "sing-box"])
-    except Exception as e:
-        print(f'Error happened stopping sing-box:\n{e}')
-    
-    # Load the JSON data
-    json_data = open_config_json()
-
-    # Modify the values in the JSON data
-    json_data["inbounds"][0]["users"][0]["uuid"] = uuid
-    json_data["inbounds"][0]["tls"]["reality"]["private_key"] = private_key
-    json_data["inbounds"][0]["tls"]["reality"]["short_id"] = [short_id]
-    
-    # Save the modified JSON data to config
-    save_to_file(json_data)
-
-    # Restarting sing-box
-    try:
-        subprocess.run(["systemctl", "restart", "sing-box"])
-    except Exception as e:
-        print(f'Error happened restarting sing-box:\n{e}')
-    
-    return json_data
-
+# Define function for scheduled renewal
 def renew_config(context: CallbackContext):
     # Do the renewing process
     renew_data()
