@@ -77,6 +77,7 @@ json_data = open_config_json()
 
 # Define a function to replace the data
 def replace_data(server, server_name):
+    json_data = open_config_json()
     json_data['inbounds'][0]['tls']['server_name'] = server_name
     json_data['inbounds'][0]['tls']['reality']['handshake']['server'] = server
     return json_data
