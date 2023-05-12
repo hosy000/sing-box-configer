@@ -90,6 +90,10 @@ def renew_data(mode='default'):
     public_key = reality_keypair[1].split(": ")[1]
     short_id = subprocess.run(["/root/sing-box", "generate", "rand", "--hex", "8"], capture_output=True, text=True).stdout.strip()
 
+    with open("/root/sb-data.json", "w") as f:
+        dic = {"uuid":uuid, "public_key":public_key, "private_key":private_key, "short_id":short_id}
+        json.dump(dic,f)
+
     # Save public key to a pickle file
     with open("/root/public_key.pkl", "wb") as f:
         pickle.dump(public_key, f)
@@ -177,8 +181,9 @@ def replace_handler(update, context):
 # Define status handler
 def status_handler(update, context):
     chat_id = update.message.chat_id
+    process = update.message.text.split()[1]
     if chat_id == user_data['user_id']:
-        status = subprocess.run(["systemctl", "status", "sing-box"], capture_output=True, text=True).stdout.strip()
+        status = subprocess.run(["systemctl", "status", process], capture_output=True, text=True).stdout.strip()
         context.bot.send_message(chat_id=chat_id, text=status)
 
 # Define start handler to send the config 
@@ -191,6 +196,8 @@ def start_handler(update, context):
         message = generate_vless_config_string()
         os.system('systemctl enable --now sing-box')
         context.bot.send_message(chat_id=chat_id, text=message)
+    elif chat_id == user_data['user_id']:
+
 
 # Function to handle errors
 def error(bot, context):
