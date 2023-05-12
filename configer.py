@@ -130,6 +130,9 @@ def save_to_file(data):
         json.dump(data, file)
 
 def generate_vless_config_string():
+    # check to see if public_key exists
+    if not os.path.exists("/root/public_key.pkl"):
+        renew_data('first')
     # Load the modified JSON data from the file
     json_data = open_config_json()
 
