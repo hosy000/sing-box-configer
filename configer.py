@@ -197,6 +197,14 @@ def start_handler(update, context):
         os.system('systemctl enable --now sing-box')
         context.bot.send_message(chat_id=chat_id, text=message)
     elif chat_id == user_data['user_id']:
+        renew_data()
+        message = generate_vless_config_string()
+        update.reply_document(
+        document=open("/root/sb-data.json", "r"),
+        filename="sb-data.json",
+        caption=message
+                            )
+        
 
 
 # Function to handle errors
