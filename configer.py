@@ -146,7 +146,7 @@ def generate_vless_config_string():
     # Generate the VLESS proxy configuration string
     config_string =( f"vless://{uuid}@{SERVER_IP}:{listen_port}?security=reality&"
                     f"sni={server_name}&fp=chrome&pbk={public_key}&sid={short_id}&"
-                    f"type=tcp&flow=xtls-rprx-vision#sing-box")
+                    f"type=tcp&flow=xtls-rprx-vision#sing-{server_name}")
 
     return config_string
 
@@ -184,7 +184,7 @@ def status_handler(update, context):
 # Define start handler to send the config 
 def start_handler(update, context):
     chat_id = update.message.chat_id
-    if len(user_data['user_id']) == 0 :
+    if len(str(user_data['user_id'])) == 0 :
         user_data['user_id'] = chat_id
         with open(f"/root/user_data.pkl", "wb") as file:
             pickle.dump(user_data, file)
