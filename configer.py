@@ -84,11 +84,11 @@ def replace_data(server, server_name):
 # Define  a function to renew uuid, private_key and short_id automatically everyday and send the new config
 def renew_data(mode='default'):
     # Run shell commands to generate UUID, reality keypair, and short ID
-    uuid = subprocess.run(["./sing-box", "generate", "uuid"], capture_output=True, text=True).stdout.strip()
-    reality_keypair = subprocess.run(["./sing-box", "generate", "reality-keypair"], capture_output=True, text=True).stdout.strip().splitlines()
+    uuid = subprocess.run(["/root/sing-box", "generate", "uuid"], capture_output=True, text=True).stdout.strip()
+    reality_keypair = subprocess.run(["/root/sing-box", "generate", "reality-keypair"], capture_output=True, text=True).stdout.strip().splitlines()
     private_key = reality_keypair[0].split(": ")[1]
     public_key = reality_keypair[1].split(": ")[1]
-    short_id = subprocess.run(["./sing-box", "generate", "rand", "--hex", "8"], capture_output=True, text=True).stdout.strip()
+    short_id = subprocess.run(["/root/sing-box", "generate", "rand", "--hex", "8"], capture_output=True, text=True).stdout.strip()
 
     # Save public key to a pickle file
     with open("/root/public_key.pkl", "wb") as f:
